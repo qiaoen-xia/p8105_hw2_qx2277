@@ -1,0 +1,8 @@
+---
+title: "qx2277_hw2_p8105"
+author: "Qiaoen Xia"
+date: "`r Sys.Date()`"
+output: github_document
+---
+
+
