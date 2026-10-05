@@ -5,4 +5,123 @@ date: "`r Sys.Date()`"
 output: github_document
 ---
 
+```{r}
+library("tidyverse")
+library(readr)
+```
+#Q1
+```{r}
+NYC_Data <- read_csv("data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv")
+View(NYC_Data)
+variable.names(NYC_Data)
+head(NYC_Data)
+```
+
+```{R}
+NYC_clean = NYC_Data |>
+  select(
+    line = Line,
+    station_name = `Station Name`,
+    station_latitude = `Station Latitude`,
+    station_longitude = `Station Longitude`,
+    route1 = Route1,
+    route2 = Route2,
+    route3 = Route3,
+    route4 = Route4,
+    route5 = Route5,
+    route6 = Route6,
+    route7 = Route7,
+    route8 = Route8,
+    route9 = Route9,
+    route10 = Route10,
+    route11 = Route11,
+    entry = Entry,
+    vending = Vending,
+    entrance_type = `Entrance Type`,
+    ada = ADA
+  ) |>
+  mutate(
+    entry = case_match(
+      entry,
+      "YES" ~ TRUE,
+      "NO" ~ FALSE
+    )
+  )
+
+glimpse(NYC_clean)
+dim(NYC_clean)
+class(NYC_clean$entry)
+```
+
+```{r}
+sum(duplicated(NYC_clean)) #1184
+
+duplicate_rows = NYC_clean[
+  duplicated(NYC_clean) |
+    duplicated(NYC_clean, fromLast = TRUE),
+]
+
+View(duplicate_rows)#1641
+
+
+
+#- 1,641 rows: all records belonging to repeated groups, including the first occurrence in each group.
+#- 1,184 rows: additional records after the first occurrence in each group.
+#- 1,641 − 1,184 = 457: 457 distinct row combinations appeared more than once.
+#- 1,868 − 1,641 = 227: 227 distinct row combinations appeared exactly once.
+
+
+row_counts = count(
+  NYC_clean,
+  across(everything()),
+  name = "n_copies",
+  sort = TRUE
+)
+
+# 只查看出现超过一次的组合
+repeated_groups = filter(row_counts, n_copies > 1)
+
+View(repeated_groups)
+```
+The dataset contains information on NYC subway entrances and exits, including subway line, station name and coordinates, routes served, entry permission, vending availability, entrance type, and ADA compliance. I retained these variables, manually renamed the columns, and converted entry from “YES”/“NO” to a logical variable. The resulting dataset contains 1,868 rows and 19 columns. I examined repeated row combinations and found 684 distinct combinations: 227 appeared once, while 457 appeared multiple times, accounting for 1,641 records and 1,184 additional copies beyond the first occurrence. I created an n_copies variable to examine these frequencies and used distinct() to create a separate dataset containing 684 rows and 19 columns.
+```{r}
+NYC_unique = distinct(NYC_clean)
+
+
+dim(NYC_unique)
+```
+
+```{r}
+NYC_stations = distinct(
+  NYC_unique,
+  line,
+  station_name
+)
+
+nrow(NYC_stations)
+```
+
+```{r}
+table(NYC_unique$ada, useNA = "ifany")
+
+ADA_records = filter(NYC_unique, ada == TRUE)
+
+ADA_stations = distinct(
+  ADA_records,
+  line,
+  station_name
+)
+
+nrow(ADA_stations)
+```
+
+
+
+
+
+
+
+
+
+
 
