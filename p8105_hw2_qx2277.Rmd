@@ -117,11 +117,176 @@ nrow(ADA_stations)
 
 
 
+#Q2
+```{r}
+library(readxl)
+
+Mr_Trash_Wheel_dat <- read_excel("data/202509 Trash Wheel Collection Data.xlsx", sheet = "Mr. Trash Wheel")
+View(Mr_Trash_Wheel_dat)
+
+
+Mr_Trash_Wheel_clean = Mr_Trash_Wheel_dat[, 1:14]
+
+Mr_Trash_Wheel_clean = Mr_Trash_Wheel_clean[
+  -nrow(Mr_Trash_Wheel_clean),
+]
+
+
+dim(Mr_Trash_Wheel_clean)
+view(Mr_Trash_Wheel_clean)
+tail(Mr_Trash_Wheel_clean)
+
+names(Mr_Trash_Wheel_clean) = c(
+  "dumpster",
+  "month",
+  "year",
+  "date",
+  "weight_tons",
+  "volume_cubic_yards",
+  "plastic_bottles",
+  "polystyrene",
+  "cigarette_butts",
+  "glass_bottles",
+  "plastic_bags",
+  "wrappers",
+  "sports_balls",
+  "homes_powered"
+)
+
+names(Mr_Trash_Wheel_clean)
+
+Mr_Trash_Wheel_clean$sports_balls = as.integer(
+  round(Mr_Trash_Wheel_clean$sports_balls)
+  
+)
+
+view(Mr_Trash_Wheel_clean)
+```
+
+```{r}
+Professor_Trash_Wheel_dat <- read_excel("data/202509 Trash Wheel Collection Data.xlsx", sheet = "Professor Trash Wheel")
+
+Professor_Trash_Wheel_clean = Professor_Trash_Wheel_dat[
+  -nrow(Professor_Trash_Wheel_dat),
+]
+
+tail(Professor_Trash_Wheel_clean)
+
+variable.names(Professor_Trash_Wheel_clean)
+
+names(Professor_Trash_Wheel_clean) = c(
+  "dumpster",
+  "month",
+  "year",
+  "date",
+  "weight_tons",
+  "volume_cubic_yards",
+  "plastic_bottles",
+  "polystyrene",
+  "cigarette_butts",
+  "glass_bottles",
+  "plastic_bags",
+  "wrappers",
+  "homes_powered"
+)
+
+
+```
+
+```{r}
+Gwynnda_dat <- read_excel("data/202509 Trash Wheel Collection Data.xlsx", sheet = "Gwynns Falls Trash Wheel")
+View(Gwynnda_dat)
+
+Gwynnda_clean = filter(
+  Gwynnda_dat,
+  !is.na(Dumpster)
+)
+
+tail(Gwynnda_clean)
+dim(Gwynnda_clean)
+
+variable.names(Gwynnda_clean)
+names(Gwynnda_clean) = c(
+  "dumpster",
+  "month",
+  "year",
+  "date",
+  "weight_tons",
+  "volume_cubic_yards",
+  "plastic_bottles",
+  "polystyrene",
+  "cigarette_butts",
+  "plastic_bags",
+  "wrappers",
+  "homes_powered"
+)
+
+```
+```{r}
+sum(duplicated(Mr_Trash_Wheel_clean))
+
+sum(duplicated(Professor_Trash_Wheel_clean))
+
+sum(duplicated(Gwynnda_clean))
+```
+
+```{r}
+Mr_Trash_Wheel_clean$trash_wheel = "Mr. Trash Wheel"
+Professor_Trash_Wheel_clean$trash_wheel = "Professor Trash Wheel"
+Gwynnda_clean$trash_wheel = "Gwynnda"
+
+
+```
+
+```{r}
+Mr_Trash_Wheel_clean$trash_wheel = "Mr. Trash Wheel"
+Professor_Trash_Wheel_clean$trash_wheel = "Professor Trash Wheel"
+Gwynnda_clean$trash_wheel = "Gwynnda"
+
+Mr_Trash_Wheel_clean$year = as.numeric(
+  Mr_Trash_Wheel_clean$year
+)#previously class char
+
+class(Mr_Trash_Wheel_clean$year)
+```
+
+```{r}
+trash_wheel_combined = bind_rows(
+  Mr_Trash_Wheel_clean,
+  Professor_Trash_Wheel_clean,
+  Gwynnda_clean
+)
+
+dim(trash_wheel_combined)
+```
+
+
+```{r}
+professor_data = filter(
+  trash_wheel_combined,
+  trash_wheel == "Professor Trash Wheel"
+)
+
+professor_total_weight = sum(
+  professor_data$weight_tons,
+  na.rm = TRUE
+)
+
+gwynnda_june_2022 = filter(
+  trash_wheel_combined,
+  trash_wheel == "Gwynnda",
+  year == 2022,
+  month == "June"
+)
+
+gwynnda_total_cigarettes = sum(
+  gwynnda_june_2022$cigarette_butts,
+  na.rm = TRUE
+)
 
 
 
 
-
-
-
-
+professor_total_weight
+gwynnda_total_cigarettes
+```
