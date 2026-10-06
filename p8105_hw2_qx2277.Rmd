@@ -290,3 +290,177 @@ gwynnda_total_cigarettes = sum(
 professor_total_weight
 gwynnda_total_cigarettes
 ```
+
+The combined Trash Wheel dataset contains 1188 observations and 15 variables. Each observation represents a dumpster collection record from Mr. Trash Wheel, Professor Trash Wheel, or Gwynnda. Key variables include collection date, trash weight in tons, volume in cubic yards, and counts of items such as plastic bottles, cigarette butts, and wrappers. I removed non-data entries, mostly last row, standardized variable names, converted year to a consistent numeric type, and rounded sports ball counts to integers. I added a trash wheel identifier before combining the datasets; variables unavailable for a particular trash wheel were filled with NA. Based on available data, Professor Trash Wheel collected 282.26 tons of trash, and Gwynnda collected 18120 cigarette butts in June 2022.
+
+
+
+
+
+
+
+
+
+#Q3
+```{r}
+mci_amyloid <- read_csv("data/mci_amyloid.csv", skip = 1, na = c("", "NA", "Na", "na", "N/A", "."))
+View(mci_amyloid)
+
+
+MCI_baseline = read_csv(
+  "data/MCI_baseline.csv",
+  skip = 1, na = c("", "NA", "Na", "na", "N/A", ".")
+)
+
+
+
+variable.names(mci_amyloid)
+variable.names(MCI_baseline)
+
+
+```
+
+
+```{r}
+names(MCI_baseline) = c(
+  "id",
+  "baseline_age",
+  "sex",
+  "education",
+  "apoe4",
+  "mci_onset_age"
+)
+
+
+
+MCI_baseline$sex = factor(
+  MCI_baseline$sex,
+  levels = c(0, 1),
+  labels = c("Female", "Male")
+)
+
+MCI_baseline$apoe4 = factor(
+  MCI_baseline$apoe4,
+  levels = c(0, 1),
+  labels = c("Non-carrier", "Carrier")
+)
+
+```
+
+
+```{r}
+MCI_baseline$mci_onset_age = as.numeric(
+  MCI_baseline$mci_onset_age
+)
+
+MCI_baseline_clean = filter(
+  MCI_baseline,
+  is.na(mci_onset_age) | mci_onset_age > baseline_age
+)
+
+nrow(MCI_baseline_clean)
+
+```
+```{r}
+MCI_developed = filter(
+  MCI_baseline,
+  !is.na(mci_onset_age) & mci_onset_age > baseline_age
+)
+
+nrow(MCI_developed)
+```
+```{r}
+average_baseline_age = mean(
+  MCI_baseline_clean$baseline_age,
+  na.rm = TRUE
+)
+
+average_baseline_age
+```
+
+```{r}
+women = filter(
+  MCI_baseline_clean,
+  sex == "Female"
+)
+
+table(women$apoe4, useNA = "ifany")
+
+prop_women_carriers = mean(
+  women$apoe4 == "Carrier",
+  na.rm = TRUE
+)
+
+prop_women_carriers
+```
+
+I imported the baseline dataset using skip = 1 to omit the initial description row and specified missing-value codes, including ".". I standardized variable names and converted sex and APOE4 carrier status to factors with descriptive labels. I excluded participants whose MCI onset age was less than or equal to their baseline age, while retaining participants with missing onset ages because they remained MCI-free during follow-up. The original dataset contained 483 participants, of whom 479 met the inclusion criteria. Each row in the cleaned dataset represents one participant, with variables for participant ID, baseline age, sex, education, APOE4 status, and MCI onset age. Among eligible participants, 79 developed MCI during follow-up. 
+
+
+```{r}
+names(mci_amyloid) = c(
+  "id",
+  "time_0",
+  "time_2",
+  "time_4",
+  "time_6",
+  "time_8"
+)
+
+names(mci_amyloid)
+
+```
+
+I imported the amyloid dataset by skipping the initial description row and specifying missing-value codes so that entries such as "NA" and "Na" were treated consistently. I renamed the columns to identify participant ID and measurement times. The dataset contains 487 participants, with amyloid 42/40 ratios recorded at baseline and at 2, 4, 6, and 8 years. The original structure was wide, with one row per participant and separate columns for each measurement time. I used pivot_longer() to reshape the matched data into a tidy long format, with separate variables for time and amyloid ratio, and converted time to numeric. Each row in the resulting dataset represents one participant at one scheduled measurement time. Missing biomarker values were retained.
+
+
+```{r}
+
+baseline_ids = unique(MCI_baseline_clean$id)
+amyloid_ids = unique(mci_amyloid$id)
+
+
+baseline_only = setdiff(baseline_ids, amyloid_ids)
+
+
+amyloid_only = setdiff(amyloid_ids, baseline_ids)
+
+baseline_only
+amyloid_only
+
+
+length(baseline_only)
+length(amyloid_only)
+```
+Eight participants appear only in the cleaned baseline dataset, while 16 appear only in the amyloid dataset. Thus, the participant IDs do not completely overlap.
+
+
+
+```{r}
+mci_combined = inner_join(
+  MCI_baseline_clean,
+  mci_amyloid,
+  by = "id"
+)
+
+
+
+
+mci_combined = pivot_longer(
+  mci_combined,
+  cols = starts_with("time_"),
+  names_to = "time",
+  names_prefix = "time_",
+  values_to = "amyloid_ratio"
+)
+mci_combined$time = as.numeric(mci_combined$time)
+
+view(mci_combined)
+
+
+dim(mci_combined)
+
+write_csv(
+  mci_combined,
+  "data/mci_combined.csv")
+```
