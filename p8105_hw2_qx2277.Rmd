@@ -12,7 +12,7 @@ library(readr)
 #Q1
 ```{r}
 NYC_Data <- read_csv("data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv")
-View(NYC_Data)
+head(NYC_Data)
 variable.names(NYC_Data)
 head(NYC_Data)
 ```
@@ -61,7 +61,7 @@ duplicate_rows = NYC_clean[
     duplicated(NYC_clean, fromLast = TRUE),
 ]
 
-View(duplicate_rows)#1641
+#View(duplicate_rows)#1641
 
 
 
@@ -78,10 +78,10 @@ row_counts = count(
   sort = TRUE
 )
 
-# 只查看出现超过一次的组合
+
 repeated_groups = filter(row_counts, n_copies > 1)
 
-View(repeated_groups)
+head(repeated_groups)#showing how many copies in the last column
 ```
 The dataset contains information on NYC subway entrances and exits, including subway line, station name and coordinates, routes served, entry permission, vending availability, entrance type, and ADA compliance. I retained these variables, manually renamed the columns, and converted entry from “YES”/“NO” to a logical variable. The resulting dataset contains 1,868 rows and 19 columns. I examined repeated row combinations and found 684 distinct combinations: 227 appeared once, while 457 appeared multiple times, accounting for 1,641 records and 1,184 additional copies beyond the first occurrence. I created an n_copies variable to examine these frequencies and used distinct() to create a separate dataset containing 684 rows and 19 columns.
 ```{r}
@@ -121,8 +121,8 @@ nrow(ADA_stations)
 ```{r}
 library(readxl)
 
-Mr_Trash_Wheel_dat <- read_excel("data/202509 Trash Wheel Collection Data.xlsx", sheet = "Mr. Trash Wheel")
-View(Mr_Trash_Wheel_dat)
+Mr_Trash_Wheel_dat <- read_excel("data/202610 Trash Wheel Collection Data.xlsx", sheet = "Mr. Trash Wheel")
+head(Mr_Trash_Wheel_dat)
 
 
 Mr_Trash_Wheel_clean = Mr_Trash_Wheel_dat[, 1:14]
@@ -133,7 +133,6 @@ Mr_Trash_Wheel_clean = Mr_Trash_Wheel_clean[
 
 
 dim(Mr_Trash_Wheel_clean)
-view(Mr_Trash_Wheel_clean)
 tail(Mr_Trash_Wheel_clean)
 
 names(Mr_Trash_Wheel_clean) = c(
@@ -160,11 +159,11 @@ Mr_Trash_Wheel_clean$sports_balls = as.integer(
   
 )
 
-view(Mr_Trash_Wheel_clean)
+head(Mr_Trash_Wheel_clean)
 ```
 
 ```{r}
-Professor_Trash_Wheel_dat <- read_excel("data/202509 Trash Wheel Collection Data.xlsx", sheet = "Professor Trash Wheel")
+Professor_Trash_Wheel_dat <- read_excel("data/202610 Trash Wheel Collection Data.xlsx", sheet = "Professor Trash Wheel")
 
 Professor_Trash_Wheel_clean = Professor_Trash_Wheel_dat[
   -nrow(Professor_Trash_Wheel_dat),
@@ -190,12 +189,17 @@ names(Professor_Trash_Wheel_clean) = c(
   "homes_powered"
 )
 
+Professor_Trash_Wheel_clean$plastic_bottles = as.numeric(
+  Professor_Trash_Wheel_clean$plastic_bottles
+)
+
+class(Professor_Trash_Wheel_clean$plastic_bottles)
 
 ```
 
 ```{r}
-Gwynnda_dat <- read_excel("data/202509 Trash Wheel Collection Data.xlsx", sheet = "Gwynns Falls Trash Wheel")
-View(Gwynnda_dat)
+Gwynnda_dat <- read_excel("data/202610 Trash Wheel Collection Data.xlsx", sheet = "Gwynnda the Good Wheel of the W")
+head(Gwynnda_dat)
 
 Gwynnda_clean = filter(
   Gwynnda_dat,
@@ -291,7 +295,7 @@ professor_total_weight
 gwynnda_total_cigarettes
 ```
 
-The combined Trash Wheel dataset contains 1188 observations and 15 variables. Each observation represents a dumpster collection record from Mr. Trash Wheel, Professor Trash Wheel, or Gwynnda. Key variables include collection date, trash weight in tons, volume in cubic yards, and counts of items such as plastic bottles, cigarette butts, and wrappers. I removed non-data entries, mostly last row, standardized variable names, converted year to a consistent numeric type, and rounded sports ball counts to integers. I added a trash wheel identifier before combining the datasets; variables unavailable for a particular trash wheel were filled with NA. Based on available data, Professor Trash Wheel collected 282.26 tons of trash, and Gwynnda collected 18120 cigarette butts in June 2022.
+The combined Trash Wheel dataset contains 1188 observations and 15 variables. Each observation represents a dumpster collection record from Mr. Trash Wheel, Professor Trash Wheel, or Gwynnda. Key variables include collection date, trash weight in tons, volume in cubic yards, and counts of items such as plastic bottles, cigarette butts, and wrappers. I removed non-data entries, mostly last row, standardized variable names, converted year to a consistent numeric type, and rounded sports ball counts to integers. for Professor trash, I converted the class of the variable plastic_bottles to numeric.I added a trash wheel identifier before combining the datasets; variables unavailable for a particular trash wheel were filled with NA. Based on available data, Professor Trash Wheel collected 282.26 tons of trash, and Gwynnda collected 18120 cigarette butts in June 2022.
 
 
 
@@ -304,7 +308,7 @@ The combined Trash Wheel dataset contains 1188 observations and 15 variables. Ea
 #Q3
 ```{r}
 mci_amyloid <- read_csv("data/mci_amyloid.csv", skip = 1, na = c("", "NA", "Na", "na", "N/A", "."))
-View(mci_amyloid)
+head(mci_amyloid)
 
 
 MCI_baseline = read_csv(
@@ -455,7 +459,7 @@ mci_combined = pivot_longer(
 )
 mci_combined$time = as.numeric(mci_combined$time)
 
-view(mci_combined)
+head(mci_combined)
 
 
 dim(mci_combined)
